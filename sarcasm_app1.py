@@ -139,7 +139,7 @@ def generate_file_name():
 def push_file_to_github():
     # GitHub repository details
     repo_owner = 'Sana555-Attar'
-    repo_name = 'updated_data_repo1857'
+    repo_name = 'sarcasm_detectors_MLops'
     branch_name = 'main'
     file_path = "myfile1.txt"
     folder_name = "updated_new_version_data"
