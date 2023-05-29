@@ -3,7 +3,7 @@ import joblib
 
 tsk = Task.init('sarcasm_detector','SKLEARN model inference ','inference')
 
-sklearn_model_path = Model(model_id="9ac90d026bd044209958ffd80433a761").get_local_copy()
+sklearn_model_path = Model(model_id="4c8df566756149b69952f8be82edaaaa").get_local_copy()
 
 sklearn_pipeline = joblib.load(sklearn_model_path)
 

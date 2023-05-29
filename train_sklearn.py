@@ -13,6 +13,7 @@ import pandas as pd
 from clearml import Task
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime
 
 from utils import plot_confusion_matrix
 
@@ -88,18 +89,44 @@ class SklearnTrainer():
 
         y_pred = self.pipeline.predict(test)
         self.task.get_logger().report_single_value("Accuracy", accuracy_score(y_test, y_pred))
-        accuracy = accuracy_score(y_test, y_pred) 
+        accuracy = accuracy_score(y_test, y_pred)
+
+         ##sana added line
+        with open("./sklearn_metrics.txt","w") as outfile:
+             outfile.write("Accuracy:" +str(accuracy)+"\n")
+
+
         self.task.get_logger().report_scalar(title='Performance', series='Accuracy',value=accuracy,iteration=0)
+
+        
+
+        current_dir = os.getcwd()
+        folder_name = "sklearn_confusion_matrix"
+        file_extension = ".png"
+
+        # Create a timestamp for the file name
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        file_name = f"confusion_matrix_{timestamp}{file_extension}"
+
+        path_to_save_folder = os.path.join(current_dir, folder_name)
+        os.makedirs(path_to_save_folder, exist_ok=True)
+
+        path_to_save_file = os.path.join(path_to_save_folder, file_name)
+
         plot_confusion_matrix(
             y_test,
             y_pred,
             ["NORMAL", "SARCASTIC"],
             figsize=(8, 8),
-            title=f"{self.model} Confusion Matrix"
+            title=f"{self.model} Confusion Matrix",
+            path_to_save_fig=path_to_save_file
+            #sana added line above
         )
 
         os.makedirs("my_awesome_model", exist_ok=True)
         joblib.dump(self.pipeline, f"my_awesome_model/sklearn_classifier_{uuid4()}.joblib")
+
 
 
 if __name__ == '__main__':

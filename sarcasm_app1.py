@@ -11,6 +11,10 @@ import time
 # from transformers import pipeline
 import tensorflow as tf
 import pickle
+#import git
+#from git import Repo
+from github import Github
+import datetime
 
 
 #task = Task.init('tf_sarcasm_detector', "tf_sarcasm_inference",'inference')
@@ -27,9 +31,9 @@ def get_model_And_tokenizer(trainig_task_id):
 
     return model, tokenizer
 
-model, tokenizer = get_model_And_tokenizer('caec4160faed4bafb009721f2fcf1e98')
+model, tokenizer = get_model_And_tokenizer('be3d33a07ff7459da8f1de3ca762a4dd')
 
-sklearn_model_path = Model(model_id="9ac90d026bd044209958ffd80433a761").get_local_copy()
+sklearn_model_path = Model(model_id="656cb274b4044ccbb0260d3cae62449c").get_local_copy()
 
 sklearn_pipeline = joblib.load(sklearn_model_path)
 
@@ -93,10 +97,10 @@ def log_to_csv(text, model_output, csv_name, count, prefix=""):
 def create_clearml_dataset_version(csv_filename, amount, counter):
     paths = glob.glob(str(Path("flagged") / f"*_{csv_filename}"))
     if paths:
-        latest_clearml_dataset_id = Dataset.get(dataset_project="Sana1_sarcasm_detector", dataset_name="sarcasm_dataset").id
+        latest_clearml_dataset_id = Dataset.get(dataset_project="sarcasm_detector", dataset_name="sarcasm_dataset").id
         print(f"{latest_clearml_dataset_id=}")
         updated_dataset = Dataset.create(
-            dataset_project="Sana1_sarcasm_detector",
+            dataset_project="sarcasm_detector",
             dataset_name="sarcasm_dataset",
             parent_datasets=[latest_clearml_dataset_id]
         )
@@ -105,8 +109,67 @@ def create_clearml_dataset_version(csv_filename, amount, counter):
         
         [os.remove(path) for path in paths]
 
+        get_updated_dataset()
+        push_file_to_github()
+
         return f"{uuid4()}.csv", 0, "0 labeled samples"
     return csv_filename, amount, counter
+
+def get_updated_dataset():
+    dataset1=Dataset.get(dataset_project="sarcasm_detector",
+                                                   dataset_name="sarcasm_dataset",
+                                                   alias="sarcasm_dataset")
+    current_dir = os.getcwd()
+    file_name = "myfile1.txt"
+    path_to_save_file = os.path.join(current_dir, file_name)
+
+    with open(path_to_save_file, "w") as f:
+        f.write(f"The new dataset of sarcasm_detector added in ClearML server with id {dataset1.id}")
+    print("created text file to push on to github")
+
+
+# Function to generate the file name with timestamp
+
+
+def generate_file_name():
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    return f'updated_data_{current_time}.txt'
+
+# Function to push the file to GitHub
+def push_file_to_github():
+    # GitHub repository details
+    repo_owner = 'Sana555-Attar'
+    repo_name = 'updated_data_repo1857'
+    branch_name = 'main'
+    file_path = "myfile1.txt"
+    folder_name = "updated_new_version_data"
+
+    # GitHub access token (you can generate one in your GitHub account settings)
+    access_token = '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'
+
+    # Create a PyGithub instance using the access token
+    g = Github(access_token)
+
+    # Get the repository
+    repo = g.get_user(repo_owner).get_repo(repo_name)
+
+    # Generate the file name
+    file_name = f'{folder_name}/{generate_file_name()}'
+
+    # Read the file contents (you can modify this as per your requirement)
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+
+    # Get the branch
+    branch = repo.get_branch(branch_name)
+
+    # Create a new file in the repository
+    repo.create_file(file_name, "Updated new version data", file_content, branch=branch.name)
+    print("File uploaded to GitHub in the 'updated_new_version_data' folder.")
+
+
+
+
 
 demo = gr.Blocks(css="style.css")
 with demo:
@@ -155,8 +218,14 @@ with demo:
     # Package the current labels and ship them as a ClearML Dataset
     b4.click(create_clearml_dataset_version, inputs=[csv_filename, amount_labeled_var, counter], outputs=[csv_filename, amount_labeled_var, counter])
         #demo1.launch()
+    #get_updated_dataset()
 demo.launch()#share=True)logo_image = gr.Image(value="/home/oem/Demo1Abhijit/tf_sarcasm_Detector/JARVIS_Logo1.png", shape=[], source="upload", show_label=False)
 #task.close()
+
+
+
+
+
 
 
 

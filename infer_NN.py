@@ -4,9 +4,9 @@ import sys
 
 sys.modules['sklearn.externals.joblib'] = joblib
 
-tsk = Task.init('sarcasm_detector','SKLEARN model inference ','inference')
+tsk = Task.init('sarcasm_detector','NN model inference ','inference')
 
-sklearn_model_path = Model(model_id="8c76f34b0c6d47818c1ee70d1708dc2e").get_local_copy()
+sklearn_model_path = Model(model_id="e70fe949269b4ef6b9eb991eb8de48ae").get_local_copy()
 
 sklearn_pipeline = joblib.load(sklearn_model_path)
 
